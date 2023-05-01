@@ -1,0 +1,103 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+enum OrderStatus {
+  INPROGRESS
+  DONE
+}
+
+model User {
+  idUser      Int       @id @default(autoincrement())
+  username    String    @db.VarChar(255) 
+  email       String    @unique @db.VarChar(255) 
+  phoneNumber String?   @db.VarChar(10) 
+  address     String?   @db.VarChar(255) 
+  password    String    @db.VarChar(255) 
+  avatar      String?   @db.VarChar(255) 
+  orders      Order[]
+  ratings     Rating[]
+}
+
+model RestaurantType {
+  idRestaurantType  Int     @id @default(autoincrement())
+  type              String  @db.VarChar(255)
+  restaurants       Restaurant[]
+}
+
+model Deliverer {
+  idDeliverer   Int     @id @default(autoincrement())
+  firstName     String  @db.VarChar(255)
+  lastName     String   @db.VarChar(255)
+  phoneNumber  String   @db.VarChar(10)
+  orders       Order[]
+}
+
+model Restaurant {
+  idRestaurant      Int            @id @default(autoincrement())
+  name              String         @db.VarChar(255)
+  address           String?        @db.VarChar(255)
+  location          String?        @db.VarChar(255)
+  phoneNumber       String         @db.VarChar(10)
+  email             String         @unique @db.VarChar(255)
+  facebook          String         @db.VarChar(255)
+  instagram         String         @db.VarChar(255)
+  picture           String?        @db.VarChar(255)
+  restaurantType    RestaurantType @relation(fields: [idRestaurantType], references: [idRestaurantType])
+  idRestaurantType  Int
+  meals             Meal[]
+  ratings          Rating[]
+}
+
+model Meal {
+  idMeal        Int           @id @default(autoincrement())
+  name          String        @db.VarChar(255)
+  description   String?       @db.VarChar(255)
+  price         Int   
+  picture       String?       @db.VarChar(255)
+  restaurant    Restaurant    @relation(fields: [idRestaurant], references: [idRestaurant])
+  idRestaurant  Int
+  orders        OrderMeal[]
+}
+
+model Order {
+  idOrder         Int         @id @default(autoincrement())
+  cookNote        String?     @db.VarChar(255)
+  deliveryAddress String?     @db.VarChar(255)
+  deliveryNote    String?     @db.VarChar(255)
+  status          OrderStatus @default(INPROGRESS)
+  date            DateTime    @default(now())
+  deliverer       Deliverer?  @relation(fields: [idDeliverer], references: [idDeliverer])
+  idDeliverer     Int?
+  user            User        @relation(fields: [idUser], references: [idUser])
+  idUser          Int
+  meals           OrderMeal[]
+}
+
+model Rating {
+  idUser        Int
+  user          User        @relation(fields: [idUser], references: [idUser])
+  idRestaurant  Int
+  restaurant    Restaurant  @relation(fields: [idRestaurant], references: [idRestaurant])
+  rating        Int
+
+  @@id([idUser, idRestaurant])
+}
+
+model OrderMeal {
+  idMeal  Int
+  meal    Meal    @relation(fields: [idMeal], references: [idMeal])
+  idOrder Int
+  order   Order   @relation(fields: [idOrder], references: [idOrder])
+  quantity  Int
+
+  @@id([idMeal, idOrder])
+}
