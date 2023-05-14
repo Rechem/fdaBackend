@@ -10,4 +10,12 @@ export default class MealRepo {
             }
         })
     }
+
+    public static findMealsByRestaurantId(idRestaurant: number): Promise<Meal[] | null> {
+        return prismaClientSingleton.meal.findMany({
+            where : {
+                idRestaurant
+            }
+        })
+    }
 }

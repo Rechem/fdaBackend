@@ -88,6 +88,7 @@ model Rating {
   idRestaurant  Int
   restaurant    Restaurant  @relation(fields: [idRestaurant], references: [idRestaurant])
   rating        Int
+  experience    String?     @db.VarChar(255)
 
   @@id([idUser, idRestaurant])
 }

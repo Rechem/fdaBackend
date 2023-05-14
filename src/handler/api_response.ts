@@ -41,7 +41,7 @@ abstract class ApiResponse {
     if (this.data != null) {
       reponseObject.data = this.data  ;
     }
-    return res.status(this.statusCode).json(reponseObject);
+    return res.status(this.statusCode).json(reponseObject.data);
   }
 
  

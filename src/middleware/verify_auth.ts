@@ -7,11 +7,11 @@ import UserRepo from '../repository/user_repository';
 
 export const verifyAuth = asyncHandler(async (req: Request, res: Response, next: NextFunction) => {
 
-    const token = req.header('Authorization').replace('Bearer ', '')
-
+    
     let decoded: any;
-
+    
     try {
+        const token = req.header('Authorization').replace('Bearer ', '')
         decoded = jwt.verify(token, `${process.env.JWT_SECRET}`) as {
             user: userJwtPayload,
         }

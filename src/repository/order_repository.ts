@@ -1,6 +1,17 @@
 import { Order } from "@prisma/client"
 import { prismaClientSingleton } from "../util/prisma_client"
 
+interface IAddOrder {
+    idUser: number,
+    cookNote: string,
+    deliveryNote: string,
+    deliveryAddress: string,
+    meals: Array<{
+        idMeal: number;
+        quantity: number;
+    }>
+}
+
 export default class OrderRepo {
 
     public static findOrdersByUserId(idUser: number): Promise<Order[] | null> {
@@ -11,11 +22,13 @@ export default class OrderRepo {
         })
     }
 
-    public static addOrder(idUser: number, cookNote: string, deliveryNote: string, deliveryAddress: string,
-        meals: Array<{
-            idMeal: number;
-            quantity: number;
-        }>): Promise<Order | null> {
+    public static addOrder({
+        idUser,
+        cookNote,
+        deliveryNote,
+        deliveryAddress,
+        meals }: IAddOrder): Promise<Order | null> {
+
         return prismaClientSingleton.order.create({
             data: {
                 idUser,
