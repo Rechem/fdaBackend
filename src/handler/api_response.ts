@@ -40,6 +40,8 @@ abstract class ApiResponse {
     const reponseObject : reponseType = {statusCode : this.statusCode , status : this.status  , message : this.message , data : null };
     if (this.data != null) {
       reponseObject.data = this.data  ;
+    }else{
+      reponseObject.data = {message : this.message};
     }
     return res.status(this.statusCode).json(reponseObject.data);
   }

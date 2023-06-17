@@ -4,7 +4,7 @@ import { verifyAuth } from "../middleware/verify_auth";
 
 const mealRouter = express.Router();
 
-mealRouter.get("/:idRestaurant", MealController.getMeals);
+mealRouter.get("/restaurant/:idRestaurant", MealController.getMeals);
 mealRouter.get("/:idMeal", MealController.getMeal);
 
 export default mealRouter;

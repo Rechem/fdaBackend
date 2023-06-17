@@ -1,11 +1,12 @@
 import { Request, Response, NextFunction } from "express";
 import asyncHandler from "../../handler/async_handler";
-import { SuccessResponse } from "../../handler/api_response";
+import { SuccessCreationResponse, SuccessResponse } from "../../handler/api_response";
 import schema from "./schema";
-import { BadRequestError } from "../../handler/api_error";
+import { AuthFailureError, BadRequestError } from "../../handler/api_error";
 import UserRepo from "../../repository/user_repository";
 import _ from "lodash";
 import { createToken, userJwtPayload } from "../../util/token";
+import bcrypt from 'bcrypt';
 
 export default class UserController {
 
@@ -24,11 +25,16 @@ export default class UserController {
                 throw new BadRequestError('Invalid credentials');
             }
 
+
+            const match: boolean = await bcrypt.compare(req.body.password, user.password);
+            if (!match)
+                throw new AuthFailureError('Incorrect password');
+
             const userObject = _.pick(user, ["idUser", "username", "email", "phoneNumber", "address", "avatar"]);
 
-            const token = createToken({idUser: userObject.idUser}, `${process.env.JWT_SECRET_KEY}`)
+            const token = createToken({ idUser: userObject.idUser }, `${process.env.JWT_SECRET_KEY}`)
 
-            return new SuccessResponse("Logged in succesfuly", { user: userObject, token }).send(res);
+            return new SuccessResponse("Logged in succesfuly", { ...userObject, token }).send(res);
         }
     )
 
@@ -47,9 +53,11 @@ export default class UserController {
                 throw new BadRequestError('Email already taken')
             }
 
+            const hashedPassword = req.body.password ? await bcrypt.hash(req.body.password, 10) : ''
+
             const newUserObject = {
                 email: req.body.email,
-                password: req.body.password,
+                password: hashedPassword,
                 username: req.body.username,
                 address: req.body.address,
                 phoneNumber: req.body.phoneNumber,
@@ -59,9 +67,9 @@ export default class UserController {
 
             const userObject = _.pick(user, ["idUser", "username", "email", "phoneNumber", "address", "avatar"]);
 
-            const token = createToken({idUser : userObject.idUser}, `${process.env.JWT_SECRET_KEY}`)
+            const token = createToken({ idUser: userObject.idUser }, `${process.env.JWT_SECRET_KEY}`)
 
-            return new SuccessResponse("Signed up succesfuly", { user: userObject, token }).send(res);
+            return new SuccessCreationResponse("Signed up succesfuly", { ...userObject, token }).send(res);
         }
     )
 

@@ -7,24 +7,23 @@ import UserRepo from '../repository/user_repository';
 
 export const verifyAuth = asyncHandler(async (req: Request, res: Response, next: NextFunction) => {
 
-    
     let decoded: any;
     
     try {
         const token = req.header('Authorization').replace('Bearer ', '')
-        decoded = jwt.verify(token, `${process.env.JWT_SECRET}`) as {
+        
+        decoded = jwt.verify(token, `${process.env.JWT_SECRET_KEY}`) as {
             user: userJwtPayload,
         }
-    } catch (err: unknown) {
+    } catch (err: unknown) {        
         throw new BadTokenError('Please login');
     }
-
-    const userFetched = await UserRepo.findUserById(decoded.user.idUser);
+    const userFetched = await UserRepo.findUserById(decoded.idUser);
 
     if (!userFetched) {
         throw new InternalError('User not found')
     }
 
-    req.user = decoded?.user;
+    req.user = {idUser : decoded?.idUser};
     next();
 })

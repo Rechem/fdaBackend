@@ -1,9 +1,9 @@
 import Joi from 'joi'
 
 const order = {
-    cookNote : Joi.string().required().allow(null, ""),
+    cookNote : Joi.string().allow(null, ""),
     deliveryAddress : Joi.string().required(),
-    deliveryNote : Joi.string().required().allow(null, ""),
+    deliveryNote : Joi.string().allow(null, ""),
     meals : Joi.array().items(Joi.object({
         idMeal : Joi.number().positive().required(),
         quantity : Joi.number().positive().required()

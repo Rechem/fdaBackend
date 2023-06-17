@@ -6,6 +6,7 @@ import orderRouter from './src/router/order_router';
 import restaurantRouter from './src/router/restaurant_router';
 import userRouter from './src/router/user_router';
 import { errorHandler } from './src/handler/error_handler';
+import compression = require('compression');
 
 dotenv.config();
 
@@ -14,13 +15,18 @@ const port = process.env.PORT || 8000;
 
 export const filesPrefix = "uploads/"
 
+app.use(compression())
+
+app.use(express.urlencoded({ extended: true }))
+app.use(express.json({ limit: '50mb' }));
+
 app.use('/' + filesPrefix, express.static('public'));
 
 app.use('/', loginRouter)
 app.use('/meals', mealRouter)
 app.use('/orders', orderRouter)
 app.use('/restaurants', restaurantRouter)
-app.use('/user', userRouter)
+app.use('/users', userRouter)
 
 app.use(errorHandler);
 
