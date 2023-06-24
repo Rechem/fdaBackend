@@ -5,6 +5,6 @@ import { upload } from "../util/multer";
 
 const userRouter = express.Router();
 
-userRouter.post("/avatar", verifyAuth, upload.single("avatars"), UserController.addAvatar);
+userRouter.post("/avatar", verifyAuth, upload.single("avatar"), UserController.addAvatar);
 
 export default userRouter;

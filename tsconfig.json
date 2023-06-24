@@ -6,7 +6,8 @@
     "moduleResolution": "node",
     "sourceMap": true,
     "outDir": "dist",
-    "typeRoots": ["./src/types"]
+    "typeRoots": ["./src/types"],
+    "resolveJsonModule": true,
   },
   // "files": [ "src/types/express/index.d.ts" ],
   "lib": ["es2015"]

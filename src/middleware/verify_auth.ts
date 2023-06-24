@@ -11,7 +11,6 @@ export const verifyAuth = asyncHandler(async (req: Request, res: Response, next:
     
     try {
         const token = req.header('Authorization').replace('Bearer ', '')
-        
         decoded = jwt.verify(token, `${process.env.JWT_SECRET_KEY}`) as {
             user: userJwtPayload,
         }
@@ -25,5 +24,6 @@ export const verifyAuth = asyncHandler(async (req: Request, res: Response, next:
     }
 
     req.user = {idUser : decoded?.idUser};
+
     next();
 })

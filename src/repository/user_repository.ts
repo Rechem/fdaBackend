@@ -1,4 +1,4 @@
-import { User } from "@prisma/client"
+import { User, AuthType } from "@prisma/client"
 import { prismaClientSingleton } from "../util/prisma_client"
 
 interface IAddUser {
@@ -48,6 +48,23 @@ export default class UserRepo {
                 username,
                 address,
                 phoneNumber
+            }
+        })
+    }
+
+    public static addGoogleUser({
+        email,
+        username,
+        phoneNumber
+    }): Promise<User | null> {
+
+        return prismaClientSingleton.user.create({
+            data: {
+                email,
+                password: "_",
+                username,
+                phoneNumber,
+                authType: AuthType.google
             }
         })
     }

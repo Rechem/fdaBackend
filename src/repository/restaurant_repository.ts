@@ -27,10 +27,19 @@ type RestaurantRated = {
 export default class RestaurantRepo {
 
     public static rateRestaurant({ idRestaurant, idUser, rating, experience }: IRateRestaurant): Promise<Rating | null> {
-        return prismaClientSingleton.rating.create({
-            data: {
+        return prismaClientSingleton.rating.upsert({
+            create: {
                 idRestaurant, idUser, rating, experience
-            }
+            },
+            update: {
+                rating, experience
+            },
+            where:{
+                idUser_idRestaurant:{
+                    idRestaurant,
+                    idUser
+                }
+            },
         })
     }
 

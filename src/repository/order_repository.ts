@@ -1,4 +1,4 @@
-import { Order } from "@prisma/client"
+import { Order, OrderStatus } from "@prisma/client"
 import { prismaClientSingleton } from "../util/prisma_client"
 
 interface IAddOrder {
@@ -20,7 +20,7 @@ export default class OrderRepo {
         select o.idOrder, r.\`name\` as restaurantName, o.status,
         DATE_FORMAT(o.date, \'%d/%m/%Y\') as date, total.totalPrice
         from \`order\` o 
-        join (select distinct idOrder, idMeal from orderMeal) om
+        join (select idOrder, idMeal from orderMeal group by idOrder) om
         on o.idOrder = om.idOrder
         join meal m on m.idMeal = om.idMeal
         join restaurant r on r.idRestaurant = m.idRestaurant
@@ -132,6 +132,17 @@ export default class OrderRepo {
                     }))
                 }
             }
+        })
+    }
+
+    public static updateOrderStatus(idOrder: number, status: OrderStatus): Promise<Order | null> {
+        return prismaClientSingleton.order.update({
+            data:{
+                status
+            },
+            where:{
+                idOrder,
+            },
         })
     }
 }

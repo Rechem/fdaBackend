@@ -5,5 +5,6 @@ const loginRouter = express.Router();
 
 loginRouter.post("/login", UserController.login);
 loginRouter.post("/signup", UserController.signUp);
+loginRouter.post("/loginWithGoogle", UserController.loginWithGoogle);
 
 export default loginRouter;

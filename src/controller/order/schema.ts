@@ -7,7 +7,8 @@ const order = {
     meals : Joi.array().items(Joi.object({
         idMeal : Joi.number().positive().required(),
         quantity : Joi.number().positive().required()
-    })).required()
+    })).required(),
+    fcmToken : Joi.string().required()
 }
 
 export default {

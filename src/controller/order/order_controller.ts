@@ -5,6 +5,9 @@ import { SuccessCreationResponse, SuccessResponse } from "../../handler/api_resp
 import schema from "./schema";
 import { BadRequestError, NotFoundError } from "../../handler/api_error";
 import MealRepo from "../../repository/meal_repository";
+import { OrderStatus } from "@prisma/client";
+import { firebaseAdmin } from "../../util/firebase_client";
+import { Message } from "firebase-admin/lib/messaging/messaging-api";
 
 export default class OrderController {
 
@@ -47,7 +50,7 @@ export default class OrderController {
             const { error } = schema.orderSchema.validate(req.body);
 
             if (error) {
-                console.log(error.details[0].message);
+                console.log(error);
                 
                 throw new BadRequestError(error.details[0].message)
             }
@@ -63,16 +66,71 @@ export default class OrderController {
                 }
             }
 
-            const newOrder = await OrderRepo.addOrder({idUser : userId, cookNote : req.body.cookNote,
+            let newOrder = await OrderRepo.addOrder({idUser : userId, cookNote : req.body.cookNote,
                 deliveryAddress: req.body.deliveryAddress, deliveryNote: req.body.deliveryNote, meals})
 
-            // what about the deliverer ?
-            // const newOrder = await OrderRepo.findOrdersByUserId(userId);
             console.log(newOrder);
             
+            new SuccessCreationResponse("Order", newOrder).send(res)
 
-            return new SuccessCreationResponse("Order", newOrder).send(res)
+            const randomTime1 = 10000
+            const randomTime2 = 10000
+            const randomTime3 = 10000
+
+
+            setTimeout(async () => {
+                await OrderRepo.updateOrderStatus(newOrder.idOrder, OrderStatus.Preparing);
+
+                _sendNotificationToTopic(
+                    req.body.fcmToken,
+                    'Your order is being prepared',
+                    `Your order #${newOrder.idOrder} is now being prepared !`)
+                    console.log(`Your order #${newOrder.idOrder} is now being prepared !`);
+                    
+
+                setTimeout(async() => {
+                    await OrderRepo.updateOrderStatus(newOrder.idOrder, OrderStatus.Delivering);
+
+                    _sendNotificationToTopic(
+                        req.body.fcmToken,
+                        'Your order is being delivered',
+                        `Your order #${newOrder.idOrder} is now being delivered !`)
+
+                        console.log(`Your order #${newOrder.idOrder} is now being delivered !`);
+                        
+
+                    setTimeout(async () => {
+                        await OrderRepo.updateOrderStatus(newOrder.idOrder, OrderStatus.Delivered);
+
+                        _sendNotificationToTopic(
+                            req.body.fcmToken,
+                            'Your order has been delivered',
+                            `Your order #${newOrder.idOrder} has been delivered !`)
+                            console.log(`Your order #${newOrder.idOrder} has been delivered !`);
+                            
+
+                    }, randomTime3)
+                }, randomTime2)
+            }, randomTime1);
+
         }
     )
 
 }
+
+const _sendNotificationToTopic = async (token: String, title: String, body: String) => {
+    const message = {
+      token,
+      notification: {
+        title,
+        body
+      }
+    };
+  
+    try {
+      await firebaseAdmin.messaging().send(message as Message);
+      console.log(`Successfully sent notification to user`);
+    } catch (error) {
+      console.error(`Error sending notification to user`);
+    }
+  };

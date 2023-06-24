@@ -35,7 +35,7 @@ export default class RestaurantController {
 
             const data = {
                 idRestaurant,
-                idUser : req.body.idUser,
+                idUser : req.user.idUser,
                 experience : req.body.experience,
                 rating : req.body.rating
             }
